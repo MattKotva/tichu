@@ -1,5 +1,5 @@
 import itertools
-from typing import Generator, List, Optional
+from typing import Generator, List, Optional, Dict, Set
 
 from deck import Deck, Card
 import random
@@ -39,8 +39,28 @@ class Hand:
 
     def play_hand(self):
         self.deal_hand()
+        self.pass_cards()
         self.find_majong()
         self.hand_loop()
+
+    def __pass_card(self, player_card_dict: Dict[Player, Set[Card]], player: Player, card: Card):
+        if player in player_card_dict:
+            player_card_dict[player].add(card)
+        else:
+            player_card_dict[player] = {card}
+
+    def pass_cards(self):
+        player_pass_cards: Dict[Player, Set[Card]] = {}
+        for player in self.game.players:
+            left = player.read_play("Select a card to pass left")[0]
+            self.__pass_card(player_pass_cards, player.next_player, left)
+            middle = player.read_play("Select a card to pass middle")[0]
+            self.__pass_card(player_pass_cards, player.next_player.next_player, middle)
+            right = player.read_play("Select a card to pass right")[0]
+            self.__pass_card(player_pass_cards, player.next_player.next_player.next_player.next_player, right)
+        for player in self.game.players:
+            for card in player_pass_cards[player]:
+                player.add_card(card)
 
     def find_majong(self):
         for player in self.game.players:
@@ -103,7 +123,7 @@ class Trick:
 
     @last_play.setter
     def last_play(self, play: Play):
-        if play > self.last_play:
+        if not self.last_play or play > self.last_play:
             self.__last_play = play
         else:
             raise IllegalPlayError("Illegal Play attempted")
@@ -118,11 +138,11 @@ class Trick:
         pass_counter = 0
         while pass_counter < 3:
             self.player_plays(current_player)
+            current_player = current_player.next_player
 
     def player_plays(self, current_player: Player):
         print(f"Player {current_player}'s turn")
-        print(f"{current_player}'s cards:\n {current_player.cards}")
-        cards_played = Play(current_player.read_play())
+        cards_played = Play(current_player.read_play("Choose cards by index to play or pass"))
         if cards_played:
             current_player.is_turn = False
             current_player = current_player.next_player

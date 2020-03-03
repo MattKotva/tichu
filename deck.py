@@ -49,6 +49,9 @@ class Card:
     def point_value(self, value: int):
         self.__point_value = value
 
+    def __hash__(self):
+        return hash((self.rank, self.name, self.suit))
+
     def __gt__(self, other):
         return self.rank > other.rank
 
@@ -86,5 +89,5 @@ class Deck(list):
         self.append(SpecialCard(MAHJON, rank=1))
         self.append(SpecialCard(DOG))
         self.append(SpecialCard(PHOENIX, point_value=-25))
-        self.append(SpecialCard(DRAGON, point_value=25))
+        self.append(SpecialCard(DRAGON, rank=CARD_RANKS[DRAGON], point_value=25))
 

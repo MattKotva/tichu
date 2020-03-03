@@ -55,7 +55,7 @@ class Player(ABC):
         return len(self.cards)
 
     @abstractmethod
-    def read_play(self):
+    def read_play(self, prompt: str):
         pass
 
     def __repr__(self):
@@ -64,21 +64,22 @@ class Player(ABC):
 
 class HumanPlayer(Player):
 
-    def read_play(self):
-        card_indexes = input("Choose cards by index to play or pass\n")
+    def read_play(self, prompt: str):
+        print(f"{self}'s cards:\n {self.cards}")
+        card_indexes = input(f"{prompt}\n")
         if card_indexes == 'pass':
             return
         try:
             cards = [self.cards[int(index)] for index in card_indexes.split(',')]
         except (TypeError, ValueError):
             print("Invalid selection. Select again:")
-            return self.read_play()
+            return self.read_play(prompt)
         return self.play_cards(cards)
 
 
 class AIPlayer(Player):
 
-    def read_play(self):
+    def read_play(self, prompt):
         pass
 
 
