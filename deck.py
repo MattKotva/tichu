@@ -1,4 +1,4 @@
-from typing import Optional, List
+from typing import Optional
 
 suits = ("Hearts", "Spades", "Clubs", "Diamonds")
 
@@ -17,13 +17,15 @@ CARD_RANKS = {
     KING: 13,
     ACE: 14,
     DRAGON: 15,
-    MAHJON: 1
+    MAHJON: 1,
+    DOG: 0,
+    PHOENIX: 1.5
 }
 
 
 class Card:
 
-    def __init__(self, name: str, rank: Optional[int] = None, suit: Optional[str] = None):
+    def __init__(self, name: str, rank: float, suit: Optional[str] = None):
         self.__rank = rank
         self.__name = name
         self.__suit = suit
@@ -67,7 +69,7 @@ class Card:
 
 class SpecialCard(Card):
 
-    def __init__(self, name: str, rank: Optional[int] = None, point_value: Optional[int] = None):
+    def __init__(self, name: str, rank: float, point_value: Optional[int] = None):
         super().__init__(name, rank, None)
         self.point_value = point_value
 
@@ -87,7 +89,7 @@ class Deck(list):
             elif card.name == KING:
                 card.point_value = 10
         self.append(SpecialCard(MAHJON, rank=1))
-        self.append(SpecialCard(DOG))
-        self.append(SpecialCard(PHOENIX, point_value=-25))
+        self.append(SpecialCard(DOG, rank=CARD_RANKS[DOG]))
+        self.append(SpecialCard(PHOENIX, rank=CARD_RANKS[PHOENIX], point_value=-25))
         self.append(SpecialCard(DRAGON, rank=CARD_RANKS[DRAGON], point_value=25))
 

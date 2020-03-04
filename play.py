@@ -59,24 +59,66 @@ class Play(list):
             else:
                 return PlayType.Straight
         else:
-            suits = set([card.suit for card in self])
-            if len(suits) > 1:
-                return PlayType.Straight
+            if ranks.count(ranks[0] == 2):
+                return PlayType.ConsecutivePairs
             else:
-                return PlayType.BombRun
+                suits = set([card.suit for card in self])
+                if len(suits) > 1:
+                    return PlayType.Straight
+                else:
+                    return PlayType.BombRun
 
-    def is_legal_play(self):
+    def is_legal_play(self) -> bool:
         if self.play_type == PlayType.Single:
             return True
         elif self.play_type == PlayType.Pair:
-            if self[0] == self[1]:
-                return True
+            return self[0] == self[1]
         elif self.play_type == PlayType.ThreeOfAKind:
-            if self[0] == self[1] == self[2]:
-                return True
-        ...
+            return self[0] == self[1] == self[2]
+        elif self.play_type == PlayType.ConsecutivePairs:
+            return self.__is_legal_consecutive_pair()
+        elif self.play_type == PlayType.FullHouse:
+            return self.__is_legal_fullhouse()
+        elif self.play_type == PlayType.Straight:
+            return self.__is_legal_straight()
+        elif self.play_type == PlayType.BombKind:
+            return self[0] == self[1] == self[2] == self[3]
+        elif self.play_type == PlayType.BombRun:
+            # Already checked for number of suits
+            return self.__is_legal_straight()
+        else:
+            # Shouldn't get here
+            return False
+
+    def __is_legal_straight(self):
+        current = self[0].rank
+        for card in self[1:]:
+            if card.rank != current + 1:
+                return False
+            current = card.rank
+        return True
+
+    def __is_legal_fullhouse(self):
+        for card in self:
+            if self.count(card) != 2 or self.count(card) == 3:
+                return False
+        return True
+
+    def __is_legal_consecutive_pair(self):
+        if len(self) % 2 != 0:
+            return False
+        else:
+            for i in range(0, len(self), 2):
+                if self[i] != self[i + 1]:
+                    return False
+                elif i + 1 != len(self) - 1 and self[i].rank != self[i].rank - 1:
+                    return False
+            return True
 
     def __gt__(self, other):
         if self.play_type != other.play_type:
             raise IllegalPlayError("Play doesn't match the last play type")
+        else:
+            if self.play_type == PlayType.Single:
+                return self[0] > other[0]
         ...

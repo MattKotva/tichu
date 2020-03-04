@@ -126,7 +126,7 @@ class Trick:
         if not self.last_play or play > self.last_play:
             self.__last_play = play
         else:
-            raise IllegalPlayError("Illegal Play attempted")
+            raise IllegalPlayError("Play not greater than last play")
 
     def find_first_player(self) -> Player:
         for player in self.hand.game.players:
@@ -142,12 +142,23 @@ class Trick:
 
     def player_plays(self, current_player: Player):
         print(f"Player {current_player}'s turn")
-        cards_played = Play(current_player.read_play("Choose cards by index to play or pass"))
+        cards_played = current_player.read_play("Choose cards by index to play or pass")
         if cards_played:
+            play = Play(cards_played)
+            if not play.is_legal_play():
+                print("Illegal play attempted! Stop cheating!!!")
+                current_player.add_cards(cards_played)
+                return self.player_plays(current_player)
+            try:
+                self.last_play = play
+            except IllegalPlayError as e:
+                print(e)
+                current_player.add_cards(cards_played)
+                return self.player_plays(current_player)
+            # Legal if we get here
             current_player.is_turn = False
             current_player = current_player.next_player
             current_player.is_turn = True
-            self.last_play = cards_played
             self.player_passed(False)
         else:
             self.player_passed(True)

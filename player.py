@@ -20,6 +20,10 @@ class Player(ABC):
     def add_card(self, card: Card):
         self.cards.append(card)
 
+    def add_cards(self, cards: List[Card]):
+        for card in cards:
+            self.add_card(card)
+
     def play_cards(self, cards: List[Card]):
         for card in cards:
             self.cards.remove(card)
