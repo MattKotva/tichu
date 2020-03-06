@@ -30,6 +30,7 @@ class Game:
         while self.team1.score < self.WINNING_SCORE and self.team2.score < self.WINNING_SCORE:
             hand = Hand(self)
             hand.play_hand()
+            print("hand done")
 
 
 class Hand:
@@ -57,7 +58,7 @@ class Hand:
             middle = player.read_play("Select a card to pass middle")[0]
             self.__pass_card(player_pass_cards, player.next_player.next_player, middle)
             right = player.read_play("Select a card to pass right")[0]
-            self.__pass_card(player_pass_cards, player.next_player.next_player.next_player.next_player, right)
+            self.__pass_card(player_pass_cards, player.previous_player, right)
         for player in self.game.players:
             for card in player_pass_cards[player]:
                 player.add_card(card)
@@ -84,6 +85,7 @@ class Hand:
         while not self.__hand_finished():
             trick = Trick(self)
             trick.play_trick()
+            print("trick over")
 
     def __deal_cards(self, deck: Deck):
         for player in self.game.players:
@@ -135,10 +137,13 @@ class Trick:
 
     def play_trick(self):
         current_player = self.find_first_player()
-        pass_counter = 0
-        while pass_counter < 3:
+        while self.pass_counter < 3:
+            current_player.cards.sort()
             self.player_plays(current_player)
+            current_player.is_turn = False
             current_player = current_player.next_player
+            current_player.is_turn = True
+        current_player.tricks_taken.add(self)
 
     def player_plays(self, current_player: Player):
         print(f"Player {current_player}'s turn")
@@ -156,11 +161,11 @@ class Trick:
                 current_player.add_cards(cards_played)
                 return self.player_plays(current_player)
             # Legal if we get here
-            current_player.is_turn = False
-            current_player = current_player.next_player
-            current_player.is_turn = True
             self.player_passed(False)
         else:
+            if not self.last_play and current_player.cards_in_hand() > 0:
+                print("You can't pass on your lead!")
+                return self.player_plays(current_player)
             self.player_passed(True)
 
     def __iter__(self):

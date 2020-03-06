@@ -100,7 +100,7 @@ class Play(list):
 
     def __is_legal_fullhouse(self):
         for card in self:
-            if self.count(card) != 2 or self.count(card) == 3:
+            if self.count(card) != 2 or self.count(card) != 3:
                 return False
         return True
 
@@ -119,6 +119,8 @@ class Play(list):
         if self.play_type != other.play_type:
             raise IllegalPlayError("Play doesn't match the last play type")
         else:
-            if self.play_type == PlayType.Single:
+            if self.play_type == PlayType.Single or self.play_type == PlayType.Pair or \
+                    self.play_type == PlayType.ThreeOfAKind or self.play_type == PlayType.ConsecutivePairs:
                 return self[0] > other[0]
-        ...
+            if self.play_type == PlayType.FullHouse:
+                pass

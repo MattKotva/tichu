@@ -10,12 +10,26 @@ class Player(ABC):
     def __init__(self, name):
         self.name = name
         self.cards: List[Card] = []
-        self.partner: Optional[Player] = None
         self.tricks_taken: Set[game.Trick] = set()
         self.is_turn: bool = False
-        self.__tichu_called = False
-        self.__big_tichu_called = False
-        self.next_player: Optional[Player] = None
+        self.__tichu_called: bool = False
+        self.__big_tichu_called: bool = False
+        self.partner: Optional[Player] = None
+        self.__next_player: Optional[Player] = None
+        self.__previous_player: Optional[Player] = None
+
+    @property
+    def next_player(self):
+        return self.__next_player
+
+    @next_player.setter
+    def next_player(self, player):
+        self.__next_player = player
+        player.__previous_player = self
+
+    @property
+    def previous_player(self):
+        return self.__previous_player
 
     def add_card(self, card: Card):
         self.cards.append(card)
